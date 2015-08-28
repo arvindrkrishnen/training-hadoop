@@ -63,3 +63,33 @@ yarn.resourcemanager.monitor.capacity.preemption.total_preemption_per_round=0.4
 Restart Hive and Yarn post making the changes
 
 
+Import data from MySQL to Hive ORC table via Sqoop
+
+Download the data files for our analysis today:
+http://1drv.ms/1EneUaO
+
+
+Run below lines on terminal / console
+cd /tmp
+wget https://www.dropbox.com/s/idbkr6gwf7dd0nv/PII_Data.csv?dl=0
+wget https://www.dropbox.com/s/nswffjex6c6k7nm/webtraffic.log?dl=0
+
+mv PII_Data.csv?dl=0 PII_Data.csv
+mv webtraffic.log?dl=0 webtraffic.log
+
+
+Ingest into MySQL
+mysql -u root -p
+#empty password
+
+create database people;
+use people;
+create table persons (people_id INT PRIMARY KEY, sex text, bdate DATE, firstname text, lastname text, addresslineone text, addresslinetwo text, city text, postalcode text, ssn text, id2 text, email text, id3 text);
+LOAD DATA LOCAL INFILE '/tmp/PII_Data.csv'
+REPLACE INTO TABLE persons FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+select people_id, firstname, lastname, city from persons;
+exit;
+
+
+
+
