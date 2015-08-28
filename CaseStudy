@@ -1,0 +1,10 @@
+## Check if Hive table already exists through BeesWax
+Access browser and type http://192.168.226.130:8080/#/main/hosts where the IP address is for your sandbox. 
+Login to BeesWax and execute drop table persons;
+
+### Import into Hive ORC
+
+sqoop import --verbose --connect 'jdbc:mysql://localhost/people' --table persons --username root --hcatalog-table people_person --hcatalog-storage-stanza "stored as orc" -m 1 --create-hcatalog-table 
+
+### Check from Beeswax on how the table has been created.
+select * from people_person; 
