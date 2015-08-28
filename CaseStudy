@@ -31,9 +31,35 @@ hadoop fs -ls /user/hue/HadoopTraining
 
 # Run basic SQL queries in these tables. Verify the performance.
 
+
+# Analyze statistics
+analyze table persons compute statistics;
+analyze table webtraffic compute statistics;
+
+
 # Install apache maven
 
 curl -o /etc/yum.repos.d/epel-apache-maven.repo https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo
 yum -y install apache-maven
+
+# Clone Git 
+
+cd /tmp
+git clone https://github.com/arvindrkrishnen/hadoop-training-hive
+
+sudo -u hdfs hadoop fs -chmod +w /apps/hive/warehouse/user_tweets
+
+mvn package
+
+# Make sure Storm is running through Ambari. If you run into issues, check if ambari-agent and ambari-server are running. If not, restart the service and give around 5 minutes
+
+# make sure the system time is accurate
+
+yum install -y ntp
+service ntpd stop
+ntpdate pool.ntp.org
+service ntpd start
+
+
 
 
