@@ -1,0 +1,10 @@
+#### Download HDP 2.1 Sandbox from the link - http://bit.ly/BigDataHadoopHiveTraining 
+#### Play the sandbox from VMWare player and monitor the IP address as it comes on the screen
+#### If you are using Windows, download putty. If Mac, you can directly connect to Sandbox on its IP address using the credentials root/hadoop through Putty or through Terminal Console in MAC
+### Screenprints will be provided seperately
+### Start Ambari
+
+#### /root/start_ambari.sh
+
+#### Check for Ambari by: typing http://<ipaddress>:8080 (Eg. http://192.168.226.130:8080/#/login ) - Use admin/admin as user id and password
+
