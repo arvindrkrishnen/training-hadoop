@@ -15,25 +15,25 @@ http://192.168.226.130:8000/filebrowser/view//apps/hive/warehouse/people_person/
 ### Import Web History to Web ORC table
 
 Copy file from local to HDFS
-hadoop fs -mkdir /user/guest/Webtraffic
-hadoop fs -copyFromLocal webtraffic.log /user/guest/Webtraffic
+hadoop fs -mkdir /user/hue/HadoopTraining
+hadoop fs -copyFromLocal webtraffic.log /user/hue/HadoopTraining
 
 Verify if it got copied
-hadoop fs -ls /user/guest/Webtraffic
+hadoop fs -ls /user/hue/HadoopTraining
 
+# Create Table in Beeswax UI 
 
-# Create Table in Beeswax 
-create table web_traffic_table(id int, val string) stored as orc row format delimited fields terminated by ',' stored as orc;
-load data inpath '/user/guest/Webtraffic/webtraffic.log' into table 'web_traffic_table';
+# upload data from your desktop directly to HDFS as well from UI
 
-create EXTERNAL table if not exists person_webtraffic (id int, val string) 
-partitioned by (year string,month string,day string) 
-clustered by (id) into 7 buckets 
-stored as orc
-LOCATION '/user/hive'
-TBLPROPERTIES ("transactional"="true")
+# Update data onto the table from UI
 
-#Run Select * query from Beeswax
+# you will notice that few records did not get loaded and hence the upload failed. Find out which records did not get uploaded properly?
 
-select * from person_webtraffic;
+# Run basic SQL queries in these tables. Verify the performance.
+
+# Install apache maven
+
+curl -o /etc/yum.repos.d/epel-apache-maven.repo https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo
+yum -y install apache-maven
+
 
