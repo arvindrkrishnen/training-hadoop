@@ -7,4 +7,62 @@ Login to BeesWax and execute drop table persons;
 sqoop import --verbose --connect 'jdbc:mysql://localhost/people' --table persons --username root --hcatalog-table people_person --hcatalog-storage-stanza "stored as orc" -m 1 --create-hcatalog-table 
 
 ### Check from Beeswax on how the table has been created.
-select * from people_person; 
+select * from people_person;
+
+### Notice the table is stored in ORC format by clicking view file location and then on part-m-00000
+http://192.168.226.130:8000/filebrowser/view//apps/hive/warehouse/people_person/part-m-00000  
+
+### Import Web History to Web ORC table
+
+Copy file from local to HDFS
+hadoop fs -copyFromLocal webtraffic.log /user/hive
+
+Verify if it got copied
+hadoop fs -ls /user/hive
+
+Ensure access is given to the user hue
+hadoop fs -chown hue:hue /user/hive/*.*
+
+
+# Create Table in Beeswax 
+create EXTERNAL table if not exists person_webtraffic (id int, val string) 
+partitioned by (year string,month string,day string) 
+clustered by (id) into 7 buckets 
+stored as orc
+LOCATION '/user/hive'
+TBLPROPERTIES ("transactional"="true")
+
+
+#Now lets configure the Flume agent. High level:
+a. The source will be of type exec that tails our weblog file using a timestamp intersept (i.e. flume interseptor adds timestamp header to the payload)
+b. The channel will be a memory channel which is ideal for flows that need higher throughput but could lose the data in the event of agent failures
+c. The sink will be of type Hive that writes userid and url to default.webtraffic table partitioned by year, month, day
+
+In Ambari -> Flume -> Config -> flume.conf enter the below and restart Flume
+
+agent.sources = webserver
+agent.sources.webserver.type = exec
+agent.sources.webserver.command = tail -F /tmp/webtraffic.log
+agent.sources.webserver.batchSize = 20
+agent.sources.webserver.channels = memoryChannel
+agent.sources.webserver.interceptors = intercepttime
+agent.sources.webserver.interceptors.intercepttime.type = timestamp
+
+## Channels ########################################################
+agent.channels = memoryChannel
+agent.channels.memoryChannel.type = memory
+agent.channels.memoryChannel.capacity = 1000
+agent.channels.memoryChannel.transactionCapacity = 1000
+
+## Sinks ###########################################################
+
+agent.sinks = hiveout
+agent.sinks.hiveout.type = hive
+agent.sinks.hiveout.hive.metastore=thrift://localhost:9083
+agent.sinks.hiveout.hive.database=default
+agent.sinks.hiveout.hive.table=webtraffic
+agent.sinks.hiveout.hive.batchSize=1
+agent.sinks.hiveout.hive.partition=%Y,%m,%d
+agent.sinks.hiveout.serializer = DELIMITED
+agent.sinks.hiveout.serializer.fieldnames =id,val
+agent.sinks.hiveout.channel = memoryChannel
