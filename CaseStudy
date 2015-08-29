@@ -49,6 +49,7 @@ git clone https://github.com/arvindrkrishnen/hadoop-training-hive
 
 sudo -u hdfs hadoop fs -chmod +w /apps/hive/warehouse/user_tweets
 
+mvn clean package -Pdist -DskipTests
 mvn package
 
 # Make sure Storm is running through Ambari. If you run into issues, check if ambari-agent and ambari-server are running. If not, restart the service and give around 5 minutes
@@ -59,6 +60,27 @@ yum install -y ntp
 service ntpd stop
 ntpdate pool.ntp.org
 service ntpd start
+
+# Access Storm by going to Ambari -> Storm -> Quick Links -> Storm UI
+
+# Run the below command in console
+
+storm jar ./target/storm-integration-test-1.0-SNAPSHOT.jar test.HiveTopology thrift://192.168.226.130:9083 default user_tweets twitter_topology
+
+# Check the topology in storm UI -> You will notice spouts and bolts 
+
+# Kill the topology after 1 minute - through Storm UI or below command
+
+storm kill twitter_topology
+
+#gather statistics around user_tweets
+analyze table user_Tweets compute statistics;
+
+# Check the Hive table through Beeswax 
+select * from user_tweets;
+
+
+
 
 
 
